@@ -1,0 +1,23 @@
+.carousel {
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.carousel > .carousel_container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carousel > .carousel_container > ul.carousel_track {
+  position: relative;
+  height: 100%;
+  list-style: none;
+}
+
+.carousel > .carousel_container > ul.carousel_track > li.carousel_slide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
