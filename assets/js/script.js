@@ -15,6 +15,19 @@ const randomCarousel = new Carousel({
     dragSens: 1.5,
     snapOnDrag: false,
     loop: true,
-    perPage: 4,
+    perPage: [
+        { maxwidth: 1080, items: 4 },
+        { maxwidth: 700, items: 3 },
+        { maxwidth: 400, items: 2 },
+        { maxwidth: 300, items: 1 }
+    ],
     autoScroll: 0
+});
+
+const homeProductsFilter = new ProductsFilter({
+    selector: '#homeProductsFilter',
+    ajax: {
+        url: 'data/data-products.php',
+        method: 'POST'
+    }
 });

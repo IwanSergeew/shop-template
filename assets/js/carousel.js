@@ -20,6 +20,7 @@ class Carousel {
         this.nextBtn = this.carousel.querySelector('.carousel_button-right');
         this.prevBtn = this.carousel.querySelector('.carousel_button-left');
         this.dotsNav = this.carousel.querySelector('.carousel_nav');
+        this.loadingBar = this.carousel.querySelector('.loading-bar');
         this.autoScroll = autoScroll;
         this.dragSens = dragSens;
         this.snapOnDrag = snapOnDrag;
@@ -27,6 +28,8 @@ class Carousel {
         this.perPage = perPage;
         this.lastMousePosX = null;
         this.autoScrollTimeOut = null;
+
+        if(this.loadingBar) this.loadingBar.style.width = `0%`;
 
         if(this.snapOnDrag) this.track.children[0].classList.add('current_slide');
 
@@ -42,6 +45,7 @@ class Carousel {
             this.carousel.addEventListener('mousedown', this.mouseDownOnSlide);
         }
 
+        this.setPerPageAmount();
         this.setItemsWidth();
 
         // Check if dots are set and add click event
@@ -61,34 +65,52 @@ class Carousel {
         this.setSlidesPosition();
 
         // Update slides width and position on window resize
-        window.addEventListener("resize", this.windowResizeEvent);
+        window.addEventListener("resize", (e) => {
+            if(this.resizeTimeout) clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(this.windowResizeEvent, 200);
+        });
 
-        this.setAutoScrollTimeout();
+        if(this.autoScroll) this.setAutoScrollTimeout();
+    }
+
+    setPerPageAmount = () => {
+        if(typeof(this.perPage) == 'number') {
+            this.perPageAmount = this.perPage;
+            return;
+        }
+
+        const width = window.innerWidth;
+        let index = this.perPage.findIndex(p => p.maxwidth < width);
+        if(index < 0) index = this.perPage.length - 1;
+        this.perPageAmount = this.perPage[index].items;
     }
 
     setItemsWidth = () => {
-        this.itemWidth = this.track.getBoundingClientRect().width / this.perPage;
+        this.itemWidth = this.track.getBoundingClientRect().width / this.perPageAmount;
         for(let i = 0; i < this.track.childElementCount; i++) {
             this.track.children[i].style.width = `${this.itemWidth}px`;
         }
     }
 
     windowResizeEvent = () => {
+        this.resizeTimeout = null;
+        this.setPerPageAmount();
         this.setItemsWidth();
-
+        if(this.loop) this.addExtraFirstAndLast();
         this.setSlidesPosition();
         
-        const activeSlide = track.querySelector('.current_slide');
-        const targetIndex = Array.from(this.track.children).findIndex(slide => slide == activeSlide);
-        
-        // Remove transition on page resize and get new current slide position
-        this.track.style.transform = `translateX(-${slides[targetIndex].style.left})`;
+        if(this.snapOnDrag) {
+            const activeSlide = this.track.querySelector('.current_slide');
+            const targetIndex = Array.from(this.track.children).findIndex(s => s == activeSlide);
+            const translateX = this.convertTranslateX(this.track.children[targetIndex].style.transform);
+            this.setCarouselPosition(translateX);
+        }
     }
 
     setCarouselPosition = (position) => {
-        const add = (this.perPage % 2 && (this.track.childElementCount < this.perPage)) ? true : false;
-        if(position >= this.itemWidth) this.track.style.transform = `translateX(${(((this.track.childElementCount - (this.perPage + (!add ? 2 : 1))) * this.itemWidth) * -1)}px)`;
-        else if(position <= (((this.track.childElementCount - (this.perPage + (!add ? 1 : 0))) * this.itemWidth) * -1)) this.track.style.transform = `translateX(0px)`;
+        const add = (this.perPageAmount % 2 && (this.track.childElementCount < this.perPageAmount)) ? true : false;
+        if(position >= this.itemWidth) this.track.style.transform = `translateX(${(((this.track.childElementCount - (this.perPageAmount + (!add ? 2 : 1))) * this.itemWidth) * -1)}px)`;
+        else if(position <= (((this.track.childElementCount - (this.perPageAmount + (!add ? 1 : 0))) * this.itemWidth) * -1)) this.track.style.transform = `translateX(0px)`;
         else this.track.style.transform = `translateX(${position}px)`;
     }
 
@@ -173,8 +195,16 @@ class Carousel {
         this.autoScrollTimeOut = null;
         this.track.removeEventListener('transitionend', this.slideTransitionEnd);
 
-        current.classList.remove('current_slide');
-        target.classList.add('current_slide');
+        this.sameSlideTransition = (current == target);
+
+        if(!this.sameSlideTransition) {
+            if(this.loadingBar) {
+                this.loadingBar.style.transition = `unset`;
+                this.loadingBar.style.width = `0%`;
+            }
+            current.classList.remove('current_slide');
+            target.classList.add('current_slide');
+        }
 
         const targetTranslateX = this.convertTranslateX(target.style.transform);
         this.track.style.transform = `translateX(${targetTranslateX * -1}px)`;
@@ -182,8 +212,6 @@ class Carousel {
         this.track.addEventListener('transitionend', this.slideTransitionEnd);
         
         if(this.dotsNav) this.updateDots();
-
-        this.setAutoScrollTimeout();
     }
 
     slideTransitionEnd = (e) => {
@@ -201,6 +229,8 @@ class Carousel {
             this.track.children[this.track.childElementCount - 2].classList.add('current_slide');
             if(this.dotsNav) this.updateDots();
         }
+
+        if(this.autoScroll) this.setAutoScrollTimeout();
     }
 
     // Mouse down on track
@@ -208,6 +238,12 @@ class Carousel {
         clearTimeout(this.autoScrollTimeOut);
         this.autoScrollTimeOut = null;
         e.preventDefault();
+
+        if(this.loadingBar) {
+            const computedStyle = window.getComputedStyle(this.loadingBar);
+            this.loadingBar.style.width = computedStyle.getPropertyValue('width');
+        }
+
         const translateX = this.convertTranslateX(this.track.style.transform);
         this.setCarouselPosition(translateX);
         this.lastMousePosX = e.screenX;
@@ -227,6 +263,7 @@ class Carousel {
             if(isNaN(translateX)) return;
             this.setCarouselPosition(translateX + amount);
             this.lastMousePosX = e.screenX;
+            this.carousel.classList.add('dragging');
         }
     }
     // Mouse up
@@ -235,6 +272,7 @@ class Carousel {
             e.preventDefault();
             this.lastMousePosX = null;
             if(this.snapOnDrag) this.snapClosestAfterDrag();
+            this.carousel.classList.remove('dragging');
         }
     }
 
@@ -253,7 +291,7 @@ class Carousel {
 
     setSlidesPosition = () => {
         const slides = this.track.children;
-        const remove = (this.loop && this.track.childElementCount > this.perPage) ? 1 : 0;
+        const remove = (this.loop && this.track.childElementCount > this.perPageAmount) ? 1 : 0;
         for(let i = 0; i < slides.length; i++) {
             slides[i].style.transform = `translateX(${this.itemWidth * (i-remove)}px)`;
         }
@@ -267,23 +305,41 @@ class Carousel {
     }
 
     setAutoScrollTimeout = () => {
-        if(this.autoScroll) {
-            this.autoScrollTimeOut = setTimeout(this.autoScrollFunc, (this.autoScroll * 1000))
+        let time = 0;
+        if(this.sameSlideTransition && this.loadingBar) {
+            const trackWidth = this.track.getBoundingClientRect().width;
+            const barWidth = this.loadingBar.getBoundingClientRect().width;
+            const percent = barWidth / trackWidth;
+            time = (this.autoScroll * 1000) - (percent * (this.autoScroll * 1000));
+            this.loadingBar.style.transition = `width ${time}ms linear`;
+            this.loadingBar.style.width = this.continueTransitionFrom;
+            this.loadingBar.style.width = `100%`;
         }
+        else {
+            time = this.autoScroll * 1000;
+            if(this.loadingBar) {
+                this.loadingBar.style.transition = `width ${time}ms linear`;
+                this.loadingBar.style.width = `100%`;
+            }
+        }
+        
+        if(this.autoScroll) this.autoScrollTimeOut = setTimeout(this.autoScrollFunc, time);
     }
 
     addExtraFirstAndLast = () => {
+        let copyChild;
+        while(copyChild = this.track.querySelector('.copy_slide')) { this.track.removeChild(copyChild) };
+        
         const children = this.track.children;
-        if(this.perPage > 1) {
-            let addCount = (this.perPage - (children.length % this.perPage));
-            if(children.length < this.perPage) addCount = this.perPage;
-            if(addCount == 0) addCount = this.perPage;
+        if(this.perPageAmount > 1) {
             const last = children[this.track.childElementCount-1].cloneNode(true);
             last.classList.remove('current_slide');
+            last.classList.add('copy_slide');
             let clone;
-            for(let i = 0; i < addCount; i++) {
+            for(let i = 0; i < this.perPageAmount; i++) {
                 clone = children[i].cloneNode(true);
                 clone.classList.remove('current_slide');
+                clone.classList.add('copy_slide');
                 this.track.append(clone);
             }
             this.track.prepend(last);
@@ -293,6 +349,8 @@ class Carousel {
             const last = children[this.track.childElementCount-1].cloneNode(true);
             first.classList.remove('current_slide');
             last.classList.remove('current_slide');
+            first.classList.add('copy_slide');
+            last.classList.add('copy_slide');
             this.track.append(first);
             this.track.prepend(last);
         }

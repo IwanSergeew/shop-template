@@ -6,9 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Shop</title>
 
+        <link rel="stylesheet" href="assets/css/products-filter.css">
         <link rel="stylesheet" href="assets/css/carousel.css">
         <link rel="stylesheet" href="assets/css/style.css">
 
+        <script src="assets/js/products-filter.js"></script>
         <script src="assets/js/carousel.js"></script>
         <script src="assets/js/gallery.js"></script>
         <script src="assets/js/script.js" defer></script>
@@ -80,6 +82,8 @@
                                 </div>
                             </li>
                         </ul>
+                        
+                        <div class="loading-bar"></div>
                     </div>
                 </div>
                 <div class="bottom">
@@ -87,56 +91,100 @@
                         <div class="carousel_container">
                             <ul class="carousel_track">
                                 <li class="carousel_slide">
-                                    <div class="wrapper">
-                                        <div class="product-image">
-                                            <img src="assets/img/products/iphone-xs.jpg" alt="">
+                                    <a href="#iphone-xs">
+                                        <div class="wrapper">
+                                            <div class="product-image">
+                                                <img src="assets/img/products/iphone-xs.jpg" alt="">
+                                            </div>
+                                            <span class="product-name">iPhone XS</span>
+                                            <span class="stars product-rating">
+                                                <span class="yellow">★★★★</span>★
+                                            </span>
                                         </div>
-                                        <label class="product-name">iPhone XS</label>
-                                        <label class="product-rating">
-                                            <span class="yellow">★★★★</span>★
-                                        </label>
-                                    </div>
+                                    </a>
                                 </li>
                                 <li class="carousel_slide">
-                                    <div class="wrapper">
-                                        <div class="product-image">
-                                            <img src="assets/img/products/ps4.webp" alt="">
+                                    <a href="#ps4">
+                                        <div class="wrapper">
+                                            <div class="product-image">
+                                                <img src="assets/img/products/ps4.webp" alt="">
+                                            </div>
+                                            <span class="product-name">Playstation 4</span>
+                                            <span class="stars product-rating">
+                                                <span class="yellow">★★</span>★★★
+                                            </span>
                                         </div>
-                                        <label class="product-name">Playstation 4</label>
-                                        <label class="product-rating">
-                                            <span class="yellow">★★</span>★★★
-                                        </label>
-                                    </div>
+                                    </a>
                                 </li>
                                 <li class="carousel_slide">
-                                    <div class="wrapper">
-                                        <div class="product-image">
-                                            <img src="assets/img/products/sony_dualsense_ps5_01_blanco_l.jpg" alt="">
+                                    <a href="#sony_dualsense_ps5_01_blanco_l">
+                                        <div class="wrapper">
+                                            <div class="product-image">
+                                                <img src="assets/img/products/sony_dualsense_ps5_01_blanco_l.jpg" alt="">
+                                            </div>
+                                            <span class="product-name">Sony Dualsense PS5 Controller</span>
+                                            <span class="stars product-rating">
+                                                <span class="yellow">★★★★</span>★
+                                            </span>
                                         </div>
-                                        <label class="product-name">Sony Dualsense PS5 Controller</label>
-                                        <label class="product-rating">
-                                            <span class="yellow">★★★★</span>★
-                                        </label>
-                                    </div>
+                                    </a>
                                 </li>
                                 <li class="carousel_slide">
-                                    <div class="wrapper">
-                                        <div class="product-image">
-                                            <img src="assets/img/products/spiderman_ps4.jpg" alt="">
+                                    <a href="#spiderman_ps4">
+                                        <div class="wrapper">
+                                            <div class="product-image">
+                                                <img src="assets/img/products/spiderman_ps4.jpg" alt="">
+                                            </div>
+                                            <span class="product-name">Spiderman PS4</span>
+                                            <span class="stars product-rating">
+                                                <span class="yellow">★★★</span>★★
+                                            </span>
                                         </div>
-                                        <label class="product-name">Spiderman PS4</label>
-                                        <label class="product-rating">
-                                            <span class="yellow">★★★</span>★★
-                                        </label>
-                                    </div>
+                                    </a>
+                                </li>
+                                <li class="carousel_slide">
+                                    <a href="#keyboard">
+                                        <div class="wrapper">
+                                            <div class="product-image">
+                                                <img src="assets/img/products/keyboard.jpg" alt="">
+                                            </div>
+                                            <span class="product-name">Keyboard</span>
+                                            <span class="stars product-rating">
+                                                <span class="yellow">★★★</span>★★
+                                            </span>
+                                        </div>
+                                    </a>
                                 </li>
                             </ul>
+                        </div>
+
+                        <div class="carousel-label">
+                            Random Products
                         </div>
                     </div>
                 </div>
             </container>
         </header>
-        <main></main>
+        <main>
+            <container>
+                <div id="homeProductsFilter" class="home-products-filter">
+                    <div class="filter-wrapper">
+                        <div class="menu-btn">=</div>
+                        <ul class="filter-menu">
+                            <li data-category="" class="active">All</li>
+                            <li data-category="headphones">Headphones</li>
+                            <li data-category="console">Console</li>
+                            <li data-category="phones">Phones</li>
+                            <li data-category="games">Games</li>
+                            <li data-category="other">Other</li>
+                        </ul>
+                        <div class="products-container">
+
+                        </div>
+                    </div>
+                </div>
+            </container>
+        </main>
         <footer></footer>
     </body>
 </html>
