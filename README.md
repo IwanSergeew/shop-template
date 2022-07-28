@@ -1,4 +1,4 @@
-# Small Shop Template [html/css/js/php/mysql]
+# Small Shop Template(not finished) [html/css/js/php/mysql]
 
 ## Screenshots
 
